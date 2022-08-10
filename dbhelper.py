@@ -1,6 +1,9 @@
 # KDB Helper
 
 
+from sre_compile import isstring
+
+
 version = "1"
 
 def initdb(dbname, xname, yname, compacted=False):
@@ -19,11 +22,15 @@ def readxdb(dbname, str, compacted=False):
     xfound = False
     with open(f"{dbname}.kdb", "r") as db:
         DB = db.readlines()
+        onenotcomp = True
         counter = 0
         for line in DB:
             # Boiler Plate stuff....
             counter += 1
-            
+            if compacted and onenotcomp:
+                counter += 2
+                onenotcomp = False
+                continue
             if counter < 3:
 
                 continue
@@ -41,13 +48,15 @@ def readxdb(dbname, str, compacted=False):
             if counter % 2 == 0 and xfound:
                 global result
                 result = line.strip()
-
                 return result
             if not counter % 2 == 0:
                 if line.strip() == str:
                     xfound = True
                     continue
+        return False
             
-            
-
+def addline(dbname, xname, yname):
+    with open(f"{dbname}.kdb", "a") as db:
+        db.write(xname + "\n")
+        db.write(yname + "\n")
 
